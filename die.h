@@ -78,9 +78,10 @@
 
    If this isn't acceptable, you can safely rename the prefix by means of
    find and replace, as long as you replace every instance of `DIE` in this
-   file (it doesn't matter if you replace them in comments, of course). A
-   later revision will include a script to perform this procedure
-   mechanically.
+   file (it doesn't matter if you replace them in comments, of course).
+   Something like this suffices:
+
+   sed 's/DIE/SOME_PFX/g' die.h > die_renamed.h
 
    --------------------------------------------------------------------------
 
@@ -209,9 +210,8 @@
 
 /* DIE_NOTHING_FANCY: master opt-out switch for all questionable features.
 
-   If defined, DIE_NO_PROTECT_KEYWORDS, DIE_NO_STD_HEADERS,
-   DIE_NO_UNUSED_SUPPRESSION, and DIE_NO_WARNING will each be defined if they
-   weren't already. */
+   If defined, DIE_NO_PROTECT_KEYWORDS, DIE_NO_STD_HEADERS, and
+   DIE_NO_UNUSED_SUPPRESSION will each be defined if they weren't already. */
 #ifdef DIE_NOTHING_FANCY
     #undef  DIE_NOTHING_FANCY
     #define DIE_NOTHING_FANCY
@@ -271,7 +271,6 @@
     #define DIE_NO_PROTECT_KEYWORDS
     #define DIE_NO_STD_HEADERS
     #define DIE_NO_UNUSED_SUPPRESSION
-    #define DIE_NO_WARNING
 #endif
 
 #ifndef DIE_NO_WARNING

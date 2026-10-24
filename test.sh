@@ -17,9 +17,30 @@ clang -O2 -std=c23 -Wall -Wextra -pedantic -Wstrict-aliasing -DDIE_NO_PROTECT_KE
 slimcc -O2 -std=c23 -Wall -DDIE_NO_PROTECT_KEYWORDS -lm -o test1b-slimcc test1.c
 ./test1b-slimcc
 
-grep -q -F 'you may have forgotten to include fenv.h before die.h [-Werror=cpp]' < <(! gcc -O2 -std=c23 -Wall -Wextra -pedantic -Wstrict-aliasing -Werror test2.c 2>&1)
-grep -q -F 'you may have forgotten to include fenv.h before die.h' < <(! clang -O2 -std=c23 -Wall -Wextra -pedantic -Wstrict-aliasing -Werror test2.c 2>&1)
-grep -q -F 'you may have forgotten to include fenv.h before die.h' < <(! slimcc -O2 -std=c23 -Wall -Werror test2.c 2>&1)
+grep -q -F 'die.h requires C23 or later (__STDC_VERSION__ >= 202311L)' < <(! gcc -O2 -std=c17 -Wall -Wextra -pedantic -Wstrict-aliasing -Werror -static -o test1c-gcc test1.c 2>&1)
+grep -q -F 'die.h requires C23 or later (__STDC_VERSION__ >= 202311L)' < <(! clang -O2 -std=c17 -Wall -Wextra -pedantic -Wstrict-aliasing -Werror -static -o test1c-clang test1.c 2>&1)
+
+sed 's/DIE/SOME_PFX/g' die.h > die_renamed.h
+sed 's/"die\.h"/"die_renamed.h"/
+     s/DIE/SOME_PFX/g' test1.c > test1d.c
+! grep -q -F 'DIE' test1d.c
+gcc -O2 -std=c23 -Wall -Wextra -pedantic -Wstrict-aliasing -DSOME_PFX_NO_PROTECT_KEYWORDS -lm -o test1d-gcc test1d.c
+./test1d-gcc
+clang -O2 -std=c23 -Wall -Wextra -pedantic -Wstrict-aliasing -DSOME_PFX_NO_PROTECT_KEYWORDS -lm -o test1d-clang test1d.c
+./test1d-clang
+slimcc -O2 -std=c23 -Wall -DSOME_PFX_NO_PROTECT_KEYWORDS -lm -o test1d-slimcc test1.c
+./test1d-slimcc
+
+gcc -O2 -std=c23 -Wall -Wextra -pedantic -Wstrict-aliasing -lm -o test1e-gcc test1d.c
+./test1e-gcc
+clang -O2 -std=c23 -Wall -Wextra -pedantic -Wstrict-aliasing -lm -o test1e-clang test1d.c
+./test1e-clang
+slimcc -O2 -std=c23 -Wall -lm -o test1e-slimcc test1.c
+./test1e-slimcc
+
+grep -q -F 'you may have forgotten to include fenv.h before die.h' < <(! gcc -O2 -std=c23 -Wall -Wextra -pedantic -Wstrict-aliasing -Werror -o test2-gcc test2.c 2>&1)
+grep -q -F 'you may have forgotten to include fenv.h before die.h' < <(! clang -O2 -std=c23 -Wall -Wextra -pedantic -Wstrict-aliasing -Werror -o test2-clang test2.c 2>&1)
+grep -q -F 'you may have forgotten to include fenv.h before die.h' < <(! slimcc -O2 -std=c23 -Wall -Werror -o test2-slimcc test2.c 2>&1)
 
 gcc -O2 -std=c23 -ffreestanding -Wall -Wextra -pedantic -Wstrict-aliasing -Werror -o test3-gcc test3.c
 ./test3-gcc
@@ -40,6 +61,6 @@ diff -q <(echo 'test4.c:16: fclose: Function not implemented') <(! enosys -s "${
 
 grep -q -F -e '-Werror=unused-value' < <(! gcc -O2 -std=c23 -Wall -Wextra -pedantic -Wstrict-aliasing -Werror -DDIE_NO_UNUSED_SUPPRESSION -o test4b-gcc test4.c 2>&1)
 
-rm -R -f TESTING.TXT ./test1-gcc ./test1-clang ./test1-slimcc ./test1b-gcc ./test1b-clang ./test1b-slimcc ./test3-gcc ./test3-clang ./test4-gcc ./test4-clang ./test4b-gcc
+rm -R -f TESTING.TXT die_renamed.h test1-clang test1-gcc test1-slimcc test1b-clang test1b-gcc test1b-slimcc test1d-clang test1d-gcc test1d-slimcc test1d.c test1e-clang test1e-gcc test1e-slimcc test3-clang test3-gcc test4-clang test4-gcc test4b-gcc
 
 printf '\nall tests passed!\n'
