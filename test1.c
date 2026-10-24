@@ -30,7 +30,7 @@
 #undef perror
 #undef strerror
 
-#if DIE_VERSION != 0x00'02'05UL
+#if DIE_VERSION != 0x00'03'00UL
     #error version
 #endif
 

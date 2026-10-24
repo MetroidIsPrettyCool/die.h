@@ -193,8 +193,8 @@
 #ifndef DIE_H
 #define DIE_H
 
-/* DIE_VERSION: 0.2.5 */
-#define DIE_VERSION 0x00'02'05UL
+/* DIE_VERSION: 0.3.0 */
+#define DIE_VERSION 0x00'03'00UL
 
 /*                           Configuration Flags
    --------------------------------------------------------------------------
