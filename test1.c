@@ -1,6 +1,3 @@
-/* TODO: Incomplete. These tests are written for a default, hosted
-   configuration with no features disabled. */
-
 /* Tested on Linux x86-64 with GCC 16.2.1, Clang 23.1.3, and whatever slimcc
    version AUR package slimcc-git r921.ff77023-2 corresponds to. */
 

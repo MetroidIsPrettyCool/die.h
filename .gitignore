@@ -3,3 +3,5 @@ test1-gcc
 test1-clang
 test1-slimcc
 TESTING.TXT
+test3-gcc
+test3-clang

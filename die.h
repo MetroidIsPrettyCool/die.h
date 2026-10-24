@@ -971,7 +971,15 @@
 
 /* DIE_TRY_UCNV(), DIE_FAIL_UCNV(): try a uchar.h conversion.
 
-   Failure is interpreted as a return value of (size_t)(-1). */
+   Failure is interpreted as a return value of (size_t)(-1).
+
+   This is meant for situations where you aren't just converting an entire
+   buffer in-place, and an incomplete character doesn't necessarily mean an
+   encoding error, since more octets may be coming.
+
+   If (size_t)(-2) should be considered an encoding error, you should use
+   DIE_TRY_UCNV2 and DIE_FAIL_UCNV2.
+ */
 #define DIE_TRY_UCNV(...) ((__VA_ARGS__)!=(size_t)(-1))
 #define DIE_FAIL_UCNV(...) ((__VA_ARGS__)==(size_t)(-1))
 #if defined(DIE_YES_ALIASES)
