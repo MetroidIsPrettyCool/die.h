@@ -17,6 +17,7 @@
 #include <uchar.h>
 #include <wchar.h>
 
+#define DIE_YES_ALIASES
 #include "die.h"
 
 /* make sure these aren't function-like macros, which would screw up tests
