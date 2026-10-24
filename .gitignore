@@ -1,7 +1,13 @@
 *.o
+TESTING.TXT
 test1-gcc
 test1-clang
 test1-slimcc
-TESTING.TXT
+test1b-gcc
+test1b-clang
+test1b-slimcc
 test3-gcc
 test3-clang
+test4-gcc
+test4-clang
+test4b-gcc

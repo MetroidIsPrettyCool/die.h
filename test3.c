@@ -6,6 +6,20 @@
 #define DIE_NO_PROTECT_KEYWORDS
 #include "die.h"
 
+#ifdef DIE_HOW_DEFAULT
+    #error DIE_HOW_DEFAULT should not be defined!
+#endif
+#ifdef DIE_OUT_DEFAULT
+    #error DIE_OUT_DEFAULT should not be defined!
+#endif
+#ifndef DIE_NO_UNUSED_SUPPRESSION
+    #error DIE_NO_UNUSED_SUPPRESSION should be defined!
+#endif
+#if defined(__STDC_VERSION_STDDEF_H__) || defined(unreachable) \
+    || defined(NULL) || defined(offsetof)
+    #error stddef.h should not have been included!
+#endif
+
 #define EXPAND_AND_STRINGIZE(X) EXPAND_AND_STRINGIZE1(X)
 #define EXPAND_AND_STRINGIZE1(X) #X
 
@@ -18,12 +32,48 @@ void my_term_fn([[maybe_unused]] int code);
 void my_log_fn(char const* p);
 
 int main(void) {
-    #line 22 "test3.c"
-    char const* const s = EXPAND_AND_STRINGIZE(DIE());
-    char const expected[] = "(my_log_fn(\"test3.c\"\":\"\"22\" \"\" \"\" ),my_term_fn(1),0)";
-    for (unsigned i = 0; i < sizeof expected; ++i) {
-        if (s[i] != expected[i]) return 1;
+    {
+        #line 37 "test3.c"
+        char const s[] = EXPAND_AND_STRINGIZE(DIE());
+        char const expected[] = "(my_log_fn(\"test3.c\"\":\"\"37\""
+                                " \"\" \"\" ),my_term_fn(1),0)";
+        if (sizeof s != sizeof expected) return 1;
+        for (unsigned i = 0; i < sizeof expected; ++i) {
+            if (s[i] != expected[i]) return 1;
+        }
     }
+
+    {
+        #line 48 "test3.c"
+        char const s[] = EXPAND_AND_STRINGIZE(DIE(DIE_code,137));
+        char const expected[] = "(my_log_fn(\"test3.c\"\":\"\"48\""
+                                " \"\" \"\" ),my_term_fn(137),0)";
+        if (sizeof s != sizeof expected) return 1;
+        for (unsigned i = 0; i < sizeof expected; ++i) {
+            if (s[i] != expected[i]) return 1;
+        }
+    }
+
+    {
+        #line 59 "test3.c"
+        char const s[] = EXPAND_AND_STRINGIZE(DIE(DIE_out,(foo,1,2,3)));
+        char const expected[] = "(foo(\"test3.c\"\":\"\"59\""
+                                " \"\" \"\" ,1,2,3),my_term_fn(1),0)";
+        if (sizeof s != sizeof expected) return 1;
+        for (unsigned i = 0; i < sizeof expected; ++i) {
+            if (s[i] != expected[i]) return 1;
+        }
+    }
+
+    {
+        char const s[] = EXPAND_AND_STRINGIZE(DIE_CODE_DEFAULT);
+        char const expected[] = "1";
+        if (sizeof s != sizeof expected) return 1;
+        for (unsigned i = 0; i < sizeof expected; ++i) {
+            if (s[i] != expected[i]) return 1;
+        }
+    }
+
     return 0;
 }
 
