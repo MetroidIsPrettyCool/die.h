@@ -19,3 +19,5 @@ test3-gcc
 test4-clang
 test4-gcc
 test4b-gcc
+test5-clang
+test5-gcc
