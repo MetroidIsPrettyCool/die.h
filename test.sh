@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Copyright (c) 2026 Joseph Burke <joseph.burke.04@gmail.com>
+
 set -euxo pipefail
 
 CLOSE_SYS_NO="$(enosys -l | sed -nE 's/^[[:space:]]+([[:digit:]]+)[[:space:]]+close$/\1/p')"
@@ -49,15 +56,15 @@ clang -O2 -std=c23 -ffreestanding -Wall -Wextra -pedantic -Wstrict-aliasing -Wer
 
 gcc -O2 -std=c23 -Wall -Wextra -pedantic -Wstrict-aliasing -Werror -static -o test4-gcc test4.c
 ./test4-gcc test4.c
-diff -q <(echo 'test4.c:13: fopen: No such file or directory') <(! ./test4-gcc 'file-that-does-not-exist.foobar' 2>&1 || exit 1)
-diff -q <(echo 'test4.c:15: fgetc: Success') <(! ./test4-gcc '/dev/null' 2>&1 || exit 1)
-diff -q <(echo 'test4.c:16: fclose: Function not implemented') <(! enosys -s "${CLOSE_SYS_NO}" ./test4-gcc test4.c 2>&1 || exit 1)
+diff -q <(echo 'test4.c:20: fopen: No such file or directory') <(! ./test4-gcc 'file-that-does-not-exist.foobar' 2>&1 || exit 1)
+diff -q <(echo 'test4.c:22: fgetc: Success') <(! ./test4-gcc '/dev/null' 2>&1 || exit 1)
+diff -q <(echo 'test4.c:23: fclose: Function not implemented') <(! enosys -s "${CLOSE_SYS_NO}" ./test4-gcc test4.c 2>&1 || exit 1)
 
 clang -O2 -std=c23 -Wall -Wextra -pedantic -Wstrict-aliasing -Werror -static -o test4-clang test4.c
 ./test4-clang test4.c
-diff -q <(echo 'test4.c:13: fopen: No such file or directory') <(! ./test4-clang 'file-that-does-not-exist.foobar' 2>&1 || exit 1)
-diff -q <(echo 'test4.c:15: fgetc: Success') <(! ./test4-clang '/dev/null' 2>&1 || exit 1)
-diff -q <(echo 'test4.c:16: fclose: Function not implemented') <(! enosys -s "${CLOSE_SYS_NO}" ./test4-clang test4.c 2>&1 || exit 1)
+diff -q <(echo 'test4.c:20: fopen: No such file or directory') <(! ./test4-clang 'file-that-does-not-exist.foobar' 2>&1 || exit 1)
+diff -q <(echo 'test4.c:22: fgetc: Success') <(! ./test4-clang '/dev/null' 2>&1 || exit 1)
+diff -q <(echo 'test4.c:23: fclose: Function not implemented') <(! enosys -s "${CLOSE_SYS_NO}" ./test4-clang test4.c 2>&1 || exit 1)
 
 grep -q -F -e '-Werror=unused-value' < <(! gcc -O2 -std=c23 -Wall -Wextra -pedantic -Wstrict-aliasing -Werror -DDIE_NO_UNUSED_SUPPRESSION -o test4b-gcc test4.c 2>&1 || exit 1)
 

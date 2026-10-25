@@ -1,3 +1,11 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/* Copyright (c) 2026 Joseph Burke <joseph.burke.04@gmail.com> */
+
 #if __STDC_HOSTED__ != 0
     #error this is a freestanding test!
 #endif
@@ -33,9 +41,9 @@ void my_log_fn(char const* p);
 
 int main(void) {
     {
-        #line 37 "test3.c"
+        #line 45 "test3.c"
         char const s[] = EXPAND_AND_STRINGIZE(DIE());
-        char const expected[] = "(my_log_fn(\"test3.c\"\":\"\"37\""
+        char const expected[] = "(my_log_fn(\"test3.c\"\":\"\"45\""
                                 " \"\" \"\" ),my_term_fn(1),0)";
         if (sizeof s != sizeof expected) return 1;
         for (unsigned i = 0; i < sizeof expected; ++i) {
@@ -44,9 +52,9 @@ int main(void) {
     }
 
     {
-        #line 48 "test3.c"
+        #line 56 "test3.c"
         char const s[] = EXPAND_AND_STRINGIZE(DIE(DIE_code,137));
-        char const expected[] = "(my_log_fn(\"test3.c\"\":\"\"48\""
+        char const expected[] = "(my_log_fn(\"test3.c\"\":\"\"56\""
                                 " \"\" \"\" ),my_term_fn(137),0)";
         if (sizeof s != sizeof expected) return 1;
         for (unsigned i = 0; i < sizeof expected; ++i) {
@@ -55,9 +63,9 @@ int main(void) {
     }
 
     {
-        #line 59 "test3.c"
+        #line 67 "test3.c"
         char const s[] = EXPAND_AND_STRINGIZE(DIE(DIE_out,(foo,1,2,3)));
-        char const expected[] = "(foo(\"test3.c\"\":\"\"59\""
+        char const expected[] = "(foo(\"test3.c\"\":\"\"67\""
                                 " \"\" \"\" ,1,2,3),my_term_fn(1),0)";
         if (sizeof s != sizeof expected) return 1;
         for (unsigned i = 0; i < sizeof expected; ++i) {

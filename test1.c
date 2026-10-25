@@ -1,3 +1,11 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/* Copyright (c) 2026 Joseph Burke <joseph.burke.04@gmail.com> */
+
 /* Tested on Linux x86-64 with GCC 16.2.1, Clang 23.1.3, and whatever slimcc
    version AUR package slimcc-git r921.ff77023-2 corresponds to. */
 
