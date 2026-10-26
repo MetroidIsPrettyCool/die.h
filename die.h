@@ -180,11 +180,6 @@
 
 /* TODO:
 
-   - TRY/FAIL macros for math errors:
-     - HUGE_VAL &c.
-     - FP_ILOGB0, FP_ILOGBNAN, FP_LLOGB0, FP_LLOGBNAN
-     - some kind of fpclassify wrapper?
-
    - Macro like DIE_STDTRY(FN) that expands to the correct TRY identifier for
      the function identified by FN, for some reasonable percentage of the
      standard library? And same for FAIL.
@@ -687,10 +682,11 @@
 #define DIE9E(S,F,...) F(S __VA_OPT__(,)__VA_ARGS__)
 #define DIE9C(...) DIE9B DIE7()(DIE9A(__VA_ARGS__))
 #define DIE9A(...) DIE9AA __VA_ARGS__
-#define DIE9AA(...) DIE9AAA __VA_ARGS__
+#define DIE9AA(...) DIE9AAA()__VA_ARGS__
+#define DIE9AAA DIE9AAA
 #define DIE9B(...) DIE9BB##__VA_ARGS__
 #define DIE9BBDIE9AA
-#define DIE9BBDIE9AAA
+#define DIE9BBDIE9AAA()
 
 #define DIE_who   DIE_who
 #define DIE_what  DIE_what
