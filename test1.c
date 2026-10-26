@@ -10,6 +10,7 @@
    version AUR package slimcc-git r921.ff77023-2 corresponds to. */
 
 #include <assert.h>
+#include <ctype.h>
 #include <fenv.h>
 #include <float.h>
 #include <math.h>
@@ -623,6 +624,40 @@ int main() {
         assert(DIE_FAILEQ(0,1) == true);
         assert(DIE_FAILEQ(1,0) == true);
         assert(DIE_FAILEQ(1,1) == false);
+    }
+
+    {
+        assert((bool)DIE_MUST(0) == false);
+        assert((bool)DIE_MUST(1) == true);
+        assert((bool)DIE_MUST((double){0.0}) == false);
+        assert((bool)DIE_MUST((double){1.0}) == true);
+        assert((bool)DIE_MUST((double){137.0}) == true);
+        assert((bool)DIE_MUST(true) == true);
+        assert((bool)DIE_MUST(false) == false);
+        #ifdef NAN
+            assert((bool)DIE_MUST(NAN) == true);
+        #endif
+        assert((bool)DIE_MUST(isalpha('9')) == false);
+        assert((bool)DIE_MUST(isalpha('a')) == true);
+        assert((bool)DIE_MUST(nullptr) == false);
+        assert((bool)DIE_MUST((int*)nullptr) == false);
+        assert((bool)DIE_MUST(&(int){}) == true);
+
+        assert((bool)DIE_MUST_NOT(0) == true);
+        assert((bool)DIE_MUST_NOT(1) == false);
+        assert((bool)DIE_MUST_NOT((double){0.0}) == true);
+        assert((bool)DIE_MUST_NOT((double){1.0}) == false);
+        assert((bool)DIE_MUST_NOT((double){137.0}) == false);
+        assert((bool)DIE_MUST_NOT(false) == true);
+        assert((bool)DIE_MUST_NOT(true) == false);
+        #ifdef NAN
+            assert((bool)DIE_MUST_NOT(NAN) == false);
+        #endif
+        assert((bool)DIE_MUST_NOT(isalpha('9')) == true);
+        assert((bool)DIE_MUST_NOT(isalpha('a')) == false);
+        assert((bool)DIE_MUST_NOT(nullptr) == true);
+        assert((bool)DIE_MUST_NOT((int*)nullptr) == true);
+        assert((bool)DIE_MUST_NOT(&(int){}) == false);
     }
 
     {

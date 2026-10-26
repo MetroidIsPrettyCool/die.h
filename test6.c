@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
     printf(
         "%c 0x%"PRIXMAX"\n",
         (x > 0) ? '+' :
-        (x < 0) ? '-' :
-        ' ',
-        y);
+        (x < 0) ? '-' : ' ',
+        y
+    );
 }
