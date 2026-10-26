@@ -36,7 +36,7 @@
 #undef perror
 #undef strerror
 
-#if DIE_VERSION != 0x00'03'00UL
+#if DIE_VERSION != 0x00'03'01UL
     #error version
 #endif
 
@@ -159,6 +159,22 @@ int main() {
         assert(DIE_FAILE((void)0) == false);
         assert(errno == 0);
         assert(DIE_FAILE(errno = ERANGE) == true);
+        assert(errno != 0);
+    }
+
+    {
+        assert(DIE_TRYEC(errno = 0) == true);
+        assert(DIE_TRYEC() == true);
+        assert(errno == 0);
+        assert(DIE_TRYEC(errno = ERANGE) == false);
+        assert(DIE_TRYEC() == false);
+        assert(errno != 0);
+
+        assert(DIE_FAILEC(errno = 0) == false);
+        assert(DIE_FAILEC() == false);
+        assert(errno == 0);
+        assert(DIE_FAILEC(errno = ERANGE) == true);
+        assert(DIE_FAILEC() == true);
         assert(errno != 0);
     }
 

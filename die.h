@@ -142,8 +142,10 @@
    --------------------------------------------------------------------------
 
    Future versions of this header may define any number of additional macro
-   identifiers under the reserved criteria, and any number of aliases
-   beginning with TRY or FAIL without increasing the major version.
+   identifiers under the reserved criteria, any number of aliases gated
+   behind DIE_YES_ALIASES beginning with TRY or FAIL, and any number of
+   aliases gated behind DIE_YES_ALIASES2 of any form, without increasing the
+   major version.
 
    --------------------------------------------------------------------------
 
@@ -194,8 +196,8 @@
 #ifndef DIE_H
 #define DIE_H
 
-/* DIE_VERSION: 0.3.0 */
-#define DIE_VERSION 0x00'03'00UL
+/* DIE_VERSION: 0.3.1 */
+#define DIE_VERSION 0x00'03'01UL
 
 /*                           Configuration Flags
    --------------------------------------------------------------------------
@@ -224,6 +226,18 @@
 #ifdef DIE_YES_ALIASES
     #undef  DIE_YES_ALIASES
     #define DIE_YES_ALIASES
+#endif
+
+/* DIE_YES_ALIASES2: define additional shorthand aliases.
+
+   If defined, aliases like `MUST` for `DIE_TRYY` and `MUST_NOT` for
+   `DIE_FAILY` will be defined.
+
+   If defined, DIE_YES_ALIASES will be defined if it wasn't already.
+ */
+#ifdef DIE_YES_ALIASES2
+    #undef  DIE_YES_ALIASES2
+    #define DIE_YES_ALIASES2
 #endif
 
 /* DIE_NO_PROTECT_KEYWORDS: do not define keywords as object-like macros.
@@ -259,9 +273,9 @@
 
 /* DIE_NO_WARNING: don't give any #errors or #warnings.
 
-   If defined, all the #warning and #error directives that would be issued
-   when environmental macros seem to indicate the implementation won't
-   support this header will be bypassed. */
+   If defined, all the #warning and #error directives will be bypassed, even
+   if it seems something is incorrect about how this header has been
+   included. */
 #ifdef DIE_NO_WARNING
     #undef  DIE_NO_WARNING
     #define DIE_NO_WARNING
@@ -271,6 +285,10 @@
     #define DIE_NO_PROTECT_KEYWORDS
     #define DIE_NO_STD_HEADERS
     #define DIE_NO_UNUSED_SUPPRESSION
+#endif
+
+#ifdef DIE_YES_ALIASES2
+    #define DIE_YES_ALIASES
 #endif
 
 #ifndef DIE_NO_WARNING
@@ -822,8 +840,7 @@
 
 /* DIE_TRY(), DIE_FAIL(): try something that will only return -1 on failure.
 
-   This is "the usual convention".
- */
+   This is "the usual convention". */
 #define DIE_TRY(...) ((__VA_ARGS__)!=-1)
 #define DIE_FAIL(...) ((__VA_ARGS__)==-1)
 #if defined(DIE_YES_ALIASES)
@@ -861,11 +878,11 @@
     #define FAILA DIE_FAILA
 #endif
 
-/* DIE_TRYS(), DIE_FAILS(): try getting a pointer to from the environment.
+/* DIE_TRYS(), DIE_FAILS(): try getting a pointer from the environment.
 
-   For example, setlocale. Stuff that returns a pointer you shouldn't ever
-   free or close. This has the same definition as DIE_TRYA/DIE_FAILA, but a
-   different name, to avoid semantic confusion. */
+   For functions like setlocale, strerror, or getenv. Stuff that returns a
+   pointer you shouldn't ever free or close. This has the same definition as
+   DIE_TRYA/DIE_FAILA, but a different name, to avoid semantic confusion. */
 #define DIE_TRYS(...) ((__VA_ARGS__)!=nullptr)
 #define DIE_FAILS(...) ((__VA_ARGS__)==nullptr)
 #if defined(DIE_YES_ALIASES)
@@ -876,7 +893,16 @@
 /* DIE_TRYE(), DIE_FAILE(): zero errno, try something, test errno for failure.
 
    For functions like strtol, that communicate success/failure by setting or
-   not setting errno. (Note that strtol also requires checking endptr.) */
+   not setting errno. (Note that strtol also requires checking endptr.)
+
+   These predicates are not appropriate for math functions, which may set
+   errno, or raise floating-point exceptions, or both, or neither (in a
+   freestanding implementation). See the DIE_TRYM, DIE_FAILM, DIE_TRYMC, and
+   DIE_FAILMC predicates for portable math error handling.
+
+   If you just want to check errno without zeroing it beforehand, see
+   DIE_TRYEC and DIE_FAILEC.
+ */
 #define DIE_TRYE(...) (errno=0,(__VA_ARGS__),errno==0)
 #define DIE_FAILE(...) (errno=0,(__VA_ARGS__),errno!=0)
 #if defined(DIE_YES_ALIASES)
@@ -884,14 +910,32 @@
     #define FAILE DIE_FAILE
 #endif
 
+/* DIE_TRYEC(), DIE_FAILEC(): try something, test errno for failure.
+
+   These behave the same as DIE_TRYE and DIE_FAILE, with two differences:
+
+   1. DIE_TRYEC and DIE_FAILEC do not zero errno.
+
+   2. DIE_TRYEC and DIE_FAILEC can be instantiated with an expression
+      argument, like `DIE_FAILEC(foo(bar, baz))`; or zero arguments, like
+      `DIE_TRYEC()`, which will expand to just checking errno.
+ */
+#define DIE_TRYEC(...) (__VA_OPT__((__VA_ARGS__),)errno==0)
+#define DIE_FAILEC(...) (__VA_OPT__((__VA_ARGS__),)errno!=0)
+#if defined(DIE_YES_ALIASES)
+    #define TRYEC DIE_TRYEC
+    #define FAILEC DIE_FAILEC
+#endif
+
 /* DIE_TRYIO(), DIE_FAILIO(): the two most common standard I/O tasks.
 
    Most standard library I/O functions either return a FILE* pointer on
    success and NULL for errors, or a non-negative int on success and some
-   negative value (often EOF) for errors. This macro simplifies these two
-   common cases by delegating expressions of type FILE* to
-   DIE_TRY_OPN/DIE_FAIL_OPN and all others to DIE_TRY_NNEG/DIE_FAIL_NNEG
-   (under the assumption they're an integer type of some kind).
+   negative value (often EOF, sometimes just any negative value, and ftell
+   uses -1L) for errors. This macro simplifies these two common cases by
+   delegating expressions of type FILE* to DIE_TRY_OPN/DIE_FAIL_OPN and all
+   others to DIE_TRY_NNEG/DIE_FAIL_NNEG (under the assumption they're an
+   integer type of some kind).
 
    Note that this is not an appropriate predicate for fread, fwrite, or
    related functions that return *unsigned* integers. I'd whitelist signed
@@ -921,7 +965,7 @@
 /* DIE_TRY_WRD(), DIE_FAIL_WRD(): try reading a wide stream, accepting WEOF.
 
    You will need to include a header that defines WEOF before instantiating
-   this macro. */
+   these macros. */
 #define DIE_TRY_WRD(S,...) ((__VA_ARGS__)!=WEOF||!ferror(S))
 #define DIE_FAIL_WRD(S,...) ((__VA_ARGS__)==WEOF&&ferror(S))
 #if defined(DIE_YES_ALIASES)
@@ -949,7 +993,10 @@
     #define FAIL_NEOF DIE_FAIL_NEOF
 #endif
 
-/* DIE_TRY_NWEOF(), DIE_FAIL_NWEOF(): not WEOF. */
+/* DIE_TRY_NWEOF(), DIE_FAIL_NWEOF(): not WEOF.
+
+   You will need to include a header that defines WEOF before instantiating
+   these macros. */
 #define DIE_TRY_NWEOF(...) ((__VA_ARGS__)!=WEOF)
 #define DIE_FAIL_NWEOF(...) ((__VA_ARGS__)==WEOF)
 #if defined(DIE_YES_ALIASES)
@@ -960,7 +1007,7 @@
 /* DIE_TRY_SIG(), DIE_FAIL_SIG(): try something that returns SIG_ERR on error.
 
    You will need to include a header that defines SIG_ERR before
-   instantiating this macro. */
+   instantiating these macros. */
 #define DIE_TRY_SIG(...) ((__VA_ARGS__)!=SIG_ERR)
 #define DIE_FAIL_SIG(...) ((__VA_ARGS__)==SIG_ERR)
 #if defined(DIE_YES_ALIASES)
@@ -1007,7 +1054,7 @@
 /* DIE_TRYT(), DIE_FAILT(): do something with threads, accept only thrd_success.
 
    You will need to include a header that defines thrd_success before
-   instantiating this macro. */
+   instantiating these macros. */
 #define DIE_TRYT(...) ((__VA_ARGS__)==thrd_success)
 #define DIE_FAILT(...) ((__VA_ARGS__)!=thrd_success)
 #if defined(DIE_YES_ALIASES)
@@ -1021,7 +1068,7 @@
    error, clock is just the only example in the standard library.
 
    You will need to include a header that defines clock_t before
-   instantiating this macro.
+   instantiating these macros.
  */
 #define DIE_TRY_CLK(...) ((__VA_ARGS__)!=(clock_t)(-1))
 #define DIE_FAIL_CLK(...) ((__VA_ARGS__)==(clock_t)(-1))
@@ -1033,7 +1080,7 @@
 /* DIE_TRY_TIM(), DIE_FAIL_TIM(): try something w/ error sentinel (time_t)(-1).
 
    You will need to include a header that defines time_t before instantiating
-   this macro. */
+   these macros. */
 #define DIE_TRY_TIM(...) ((__VA_ARGS__)!=(time_t)(-1))
 #define DIE_FAIL_TIM(...) ((__VA_ARGS__)==(time_t)(-1))
 #if defined(DIE_YES_ALIASES)
@@ -1100,7 +1147,7 @@
 
    You will need to include headers that define isnan, math_errhandling,
    MATH_ERRNO, MATH_ERREXCEPT, fetestexcept, and feclearexcept before
-   instantiating this macro.
+   instantiating these macros.
  */
 #define DIE_TRYM(...) (DIE_M_USE_ERRNO?(errno=0):0,(DIE_M_USE_EXCEPT?!feclearexcept(DIE_M_FEFLAGS):1)&&!isnan(__VA_ARGS__)&&!(DIE_M_USE_ERRNO&&errno)&&!(DIE_M_USE_EXCEPT&&fetestexcept(DIE_M_FEFLAGS)))
 #define DIE_FAILM(...) (DIE_M_USE_ERRNO?(errno=0):0,(DIE_M_USE_EXCEPT?feclearexcept(DIE_M_FEFLAGS):0)||isnan(__VA_ARGS__)||(DIE_M_USE_ERRNO&&errno)||(DIE_M_USE_EXCEPT&&fetestexcept(DIE_M_FEFLAGS)))
@@ -1150,7 +1197,7 @@
 
    You will need to include headers that define isnan, math_errhandling,
    MATH_ERRNO, MATH_ERREXCEPT, fetestexcept, and feclearexcept before
-   instantiating this macro.
+   instantiating these macros.
  */
 #define DIE_TRYMC(...) (__VA_OPT__(!isnan(__VA_ARGS__)&&)!(DIE_M_USE_ERRNO&&errno)&&!(DIE_M_USE_EXCEPT&&fetestexcept(DIE_M_FEFLAGS)))
 #define DIE_FAILMC(...) (__VA_OPT__(isnan(__VA_ARGS__)||)(DIE_M_USE_ERRNO&&errno)||(DIE_M_USE_EXCEPT&&fetestexcept(DIE_M_FEFLAGS)))
@@ -1172,6 +1219,40 @@
 #if defined(DIE_YES_ALIASES)
     #define TRYEQ DIE_TRYEQ
     #define FAILEQ DIE_FAILEQ
+#endif
+
+/* DIE_TRYY(), DIE_FAILY(): truthy success, falsy failure.
+
+   These are pretty redundant. They do basically the same thing as
+   DIE_TRYA/FAILA, DIE_TRYS/FAILS, DIE_TRY_OPN/FAIL_OPN, etc. And, yes, you
+   could just use parentheses instead of DIE_TRYY.
+
+   They are provided as semantic annotations. Comments which are also code.
+
+   DIE_TRYY and DIE_FAILYY are also available under the aliases DIE_MUST and
+   DIE_MUST_NOT, and, if DIE_YES_ALIASES2 is defined prior to including this
+   header, the bare aliases `MUST` and `MUST_NOT`. These are meant for when a
+   condition must be truthy, or else a fatal error has occurred, but
+   semantically the expression should not be understood as a procedure.
+
+   For example, given some `char* s`:
+
+   intmax_t x;
+   char* endptr = nullptr;
+   TRYE(x = strtoimax(s, &endptr, 10)) && MUST(*endptr == '\0')
+   || DIE(,strtoimax, ,"\"%s\" is not an intmax_t", ,(DIE_epf,s));
+ */
+#define DIE_TRYY(...) (__VA_ARGS__)
+#define DIE_FAILY(...) (!(__VA_ARGS__))
+#define DIE_MUST DIE_TRYY
+#define DIE_MUST_NOT DIE_FAILY
+#if defined(DIE_YES_ALIASES)
+    #define TRYY DIE_TRYY
+    #define FAILY DIE_FAILY
+#endif
+#if defined(DIE_YES_ALIASES2)
+    #define MUST DIE_TRYY
+    #define MUST_NOT DIE_FAILY
 #endif
 
 #endif /* DIE_H */

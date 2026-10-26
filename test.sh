@@ -80,6 +80,69 @@ set -e
 [ "${TEST5_GCC_RET}" -eq 137 ]
 [ "${TEST5_CLANG_RET}" -eq 137 ]
 
-rm -R -f TESTING.TXT die_renamed.h test1-clang test1-gcc test1-slimcc test1b-clang test1b-gcc test1b-slimcc test1d-clang test1d-gcc test1d-slimcc test1d.c test1e-clang test1e-gcc test1e-slimcc test3-clang test3-gcc test4-clang test4-gcc test4b-gcc test5-clang test5-gcc
+gcc -O2 -std=c23 -Wall -Wextra -Wstrict-aliasing -Wno-parentheses -Werror -o test6-gcc test6.c
+clang -O2 -std=c23 -Wall -Wextra -Wstrict-aliasing -Wno-logical-op-parentheses -Werror -o test6-clang test6.c
+slimcc -O2 -std=c23 -Wall -o test6-slimcc test6.c
+
+diff -q <(echo '+ 0x7B') <(./test6-gcc 123 || exit 1)
+diff -q <(echo '+ 0x7B') <(./test6-clang 123 || exit 1)
+diff -q <(echo '+ 0x7B') <(./test6-slimcc 123 || exit 1)
+
+diff -q <(echo '- 0x7B') <(./test6-gcc -123 || exit 1)
+diff -q <(echo '- 0x7B') <(./test6-clang -123 || exit 1)
+diff -q <(echo '- 0x7B') <(./test6-slimcc -123 || exit 1)
+
+diff -q <(echo '  0x0') <(./test6-gcc 0 || exit 1)
+diff -q <(echo '  0x0') <(./test6-clang 0 || exit 1)
+diff -q <(echo '  0x0') <(./test6-slimcc 0 || exit 1)
+
+diff -q <(echo 'test6.c:21: argc: less than 2') <(! ./test6-gcc 2>&1 || exit 1)
+diff -q <(echo 'test6.c:21: argc: less than 2') <(! ./test6-clang 2>&1 || exit 1)
+diff -q <(echo 'test6.c:21: argc: less than 2') <(! ./test6-slimcc 2>&1 || exit 1)
+
+diff -q <(echo 'test6.c:29: strtoimax: "g" is not an intmax_t') <(! ./test6-gcc g 2>&1 || exit 1)
+diff -q <(echo 'test6.c:29: strtoimax: "g" is not an intmax_t') <(! ./test6-clang g 2>&1 || exit 1)
+diff -q <(echo 'test6.c:29: strtoimax: "g" is not an intmax_t') <(! ./test6-slimcc g 2>&1 || exit 1)
+
+diff -q <(echo 'test6.c:29: strtoimax: "1g" is not an intmax_t') <(! ./test6-gcc 1g 2>&1 || exit 1)
+diff -q <(echo 'test6.c:29: strtoimax: "1g" is not an intmax_t') <(! ./test6-clang 1g 2>&1 || exit 1)
+diff -q <(echo 'test6.c:29: strtoimax: "1g" is not an intmax_t') <(! ./test6-slimcc 1g 2>&1 || exit 1)
+
+diff -q <(echo 'test6.c:29: strtoimax: "g1" is not an intmax_t') <(! ./test6-gcc g1 2>&1 || exit 1)
+diff -q <(echo 'test6.c:29: strtoimax: "g1" is not an intmax_t') <(! ./test6-clang g1 2>&1 || exit 1)
+diff -q <(echo 'test6.c:29: strtoimax: "g1" is not an intmax_t') <(! ./test6-slimcc g1 2>&1 || exit 1)
+
+gcc -O2 -std=c23 -Wall -Wextra -Wstrict-aliasing -Wno-parentheses -Werror -o test7a-gcc test7a.c
+clang -O2 -std=c23 -Wall -Wextra -Wstrict-aliasing -Wno-logical-op-parentheses -Werror -o test7a-clang test7a.c
+slimcc -O2 -std=c23 -Wall -o test7a-slimcc test7a.c
+gcc -O2 -std=c23 -Wall -Wextra -Wstrict-aliasing -Wno-parentheses -Werror -o test7b-gcc test7b.c
+clang -O2 -std=c23 -Wall -Wextra -Wstrict-aliasing -Wno-logical-op-parentheses -Werror -o test7b-clang test7b.c
+slimcc -O2 -std=c23 -Wall -o test7b-slimcc test7b.c
+gcc -O2 -std=c23 -Wall -Wextra -Wstrict-aliasing -Wno-parentheses -Werror -o test7c-gcc test7c.c
+clang -O2 -std=c23 -Wall -Wextra -Wstrict-aliasing -Wno-logical-op-parentheses -Werror -o test7c-clang test7c.c
+slimcc -O2 -std=c23 -Wall -o test7c-slimcc test7c.c
+
+diff -q <(./test7a-gcc) <(./test7b-gcc)
+diff -q <(./test7a-clang) <(./test7b-clang)
+diff -q <(./test7a-slimcc) <(./test7b-slimcc)
+
+! diff -q <(./test7a-gcc) <(./test7c-gcc) || exit 1
+! diff -q <(./test7a-clang) <(./test7c-clang) || exit 1
+! diff -q <(./test7a-slimcc) <(./test7c-slimcc) || exit 1
+
+gcc -O2 -std=c23 -ffreestanding -Wall -Wextra -Wstrict-aliasing -Wno-parentheses -Werror -o test7d-gcc test7a.c
+clang -O2 -std=c23 -ffreestanding -Wall -Wextra -Wstrict-aliasing -Wno-logical-op-parentheses -Werror -o test7d-clang test7a.c
+gcc -O2 -std=c23 -ffreestanding -Wall -Wextra -Wstrict-aliasing -Wno-parentheses -Werror -o test7e-gcc test7b.c
+clang -O2 -std=c23 -ffreestanding -Wall -Wextra -Wstrict-aliasing -Wno-logical-op-parentheses -Werror -o test7e-clang test7b.c
+gcc -O2 -std=c23 -ffreestanding -Wall -Wextra -Wstrict-aliasing -Wno-parentheses -Werror -o test7f-gcc test7c.c
+clang -O2 -std=c23 -ffreestanding -Wall -Wextra -Wstrict-aliasing -Wno-logical-op-parentheses -Werror -o test7f-clang test7c.c
+
+diff -q <(./test7d-gcc) <(./test7e-gcc)
+diff -q <(./test7d-clang) <(./test7e-clang)
+
+! diff -q <(./test7d-gcc) <(./test7f-gcc) || exit 1
+! diff -q <(./test7d-clang) <(./test7f-clang) || exit 1
+
+rm -R -f TESTING.TXT die_renamed.h test1-clang test1-gcc test1-slimcc test1b-clang test1b-gcc test1b-slimcc test1d-clang test1d-gcc test1d-slimcc test1d.c test1e-clang test1e-gcc test1e-slimcc test3-clang test3-gcc test4-clang test4-gcc test4b-gcc test5-clang test5-gcc test6-clang test6-gcc test6-slimcc test7a-clang test7a-gcc test7a-slimcc test7b-clang test7b-gcc test7b-slimcc test7c-clang test7c-gcc test7c-slimcc test7d-clang test7d-gcc test7e-clang test7e-gcc test7f-clang test7f-gcc
 
 printf '\nall tests passed!\n'
