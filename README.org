@@ -1,0 +1,5 @@
+#+TITLE: README for die.h
+
+Macro-only fatal error handling for C23.
+
+The central file in this repository is ~die.h~. ~die_defaults.inc~ is an optional QoL helper.
