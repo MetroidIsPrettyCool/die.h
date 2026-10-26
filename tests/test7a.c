@@ -8,22 +8,22 @@
 
 #include <stdio.h>
 
-#include "die.h"
+#include "../die.h"
 
 #define EXPAND_AND_STRINGIZE(X) EXPAND_AND_STRINGIZE1(X)
 #define EXPAND_AND_STRINGIZE1(X) #X
 
-#undef DIE_WHO_DEFAULT
-#define DIE_WHO_DEFAULT "warg!"
-
-#undef DIE_CODE_DEFAULT
-#define DIE_CODE_DEFAULT 137L
-
-#undef DIE_M_USE_ERRNO
-#define DIE_M_USE_ERRNO false
-
 int main() {
-    #include "die_defaults.inc"
+
+
+
+
+
+
+
+
+
+
 
     #line 29 "test7"
     puts(EXPAND_AND_STRINGIZE(DIE_WHO_DEFAULT));

@@ -12,7 +12,7 @@
 #include <assert.h>
 
 #define DIE_YES_ALIASES
-#include "die.h"
+#include "../die.h"
 
 int main(int argc, char* argv[]) {
     #line 18 "test4.c"

@@ -7,7 +7,7 @@
 /* Copyright (c) 2026 Joseph Burke <joseph.burke.04@gmail.com> */
 
 #define DIE_NO_STD_HEADERS
-#include "die.h"
+#include "../die.h"
 
 /* expected to warn "you may have forgotten to include fenv.h before die.h" */
 

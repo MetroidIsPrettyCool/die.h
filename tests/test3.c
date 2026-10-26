@@ -12,7 +12,7 @@
 
 #define DIE_NO_STD_HEADERS
 #define DIE_NO_PROTECT_KEYWORDS
-#include "die.h"
+#include "../die.h"
 
 #ifdef DIE_HOW_DEFAULT
     #error DIE_HOW_DEFAULT should not be defined!

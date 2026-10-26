@@ -14,7 +14,7 @@
 #include <stdckdint.h>
 
 #define DIE_YES_ALIASES2
-#include "die.h"
+#include "../die.h"
 
 int main(int argc, char* argv[]) {
     #line 21 "test6.c"

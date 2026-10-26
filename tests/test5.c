@@ -20,7 +20,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-#include "die.h"
+#include "../die.h"
 
 int main() {
     #line 27 "test5.c"

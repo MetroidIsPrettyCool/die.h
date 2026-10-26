@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 
-#include "die.h"
+#include "../die.h"
 
 #define EXPAND_AND_STRINGIZE(X) EXPAND_AND_STRINGIZE1(X)
 #define EXPAND_AND_STRINGIZE1(X) #X
@@ -23,7 +23,7 @@
 #define DIE_M_USE_ERRNO false
 
 int main() {
-
+    #include "../die_defaults.inc"
 
     #line 29 "test7"
     puts(EXPAND_AND_STRINGIZE(DIE_WHO_DEFAULT));

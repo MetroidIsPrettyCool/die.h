@@ -7,9 +7,9 @@
 *.o
 TESTING.TXT
 die_renamed.h
-test1-clang
-test1-gcc
-test1-slimcc
+test1a-clang
+test1a-gcc
+test1a-slimcc
 test1b-clang
 test1b-gcc
 test1b-slimcc
@@ -22,8 +22,8 @@ test1e-gcc
 test1e-slimcc
 test3-clang
 test3-gcc
-test4-clang
-test4-gcc
+test4a-clang
+test4a-gcc
 test4b-gcc
 test5-clang
 test5-gcc
